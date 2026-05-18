@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dice Roll</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;600;800&display=swap');
+body{
+  background:
+    radial-gradient(circle at 20% 10%, #2d1b4e 0%, transparent 50%),
+    radial-gradient(circle at 80% 90%, #0d3b3b 0%, transparent 50%),
+    radial-gradient(circle at center, #1a0f2e 0%, #08051a 100%);
+  font-family:'Inter',system-ui,sans-serif;
+  min-height:100vh;
+}
+.header-font{font-family:'Bungee',system-ui;letter-spacing:4px;}
+
+.dice{
+  width:148px;height:148px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:5rem;font-weight:800;color:white;
+  letter-spacing:-2px;
+  border-radius:28px;
+  position:relative;
+  cursor:pointer;
+  transition:transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s ease;
+  background-image:
+    linear-gradient(155deg,
+      rgba(255,255,255,0.18) 0%,
+      rgba(255,255,255,0.04) 40%,
+      transparent 60%,
+      rgba(0,0,0,0.12) 100%);
+  /* Realistic shadow stack PLUS a colored aura matching the die's color */
+  box-shadow:
+    0 1px 1px rgba(255,255,255,0.4) inset,
+    0 -1px 1px rgba(0,0,0,0.15) inset,
+    0 1px 2px rgba(0,0,0,0.2),
+    0 4px 8px rgba(0,0,0,0.25),
+    0 12px 24px rgba(0,0,0,0.35),
+    0 24px 48px -8px rgba(0,0,0,0.4),
+    0 0 40px -5px var(--die-glow, rgba(255,255,255,0.3)),
+    0 0 80px -20px var(--die-glow, rgba(255,255,255,0.4));
+  overflow:hidden;
+  isolation:isolate;
+  transform-origin:center center;
+}
+/* Top sheen highlight */
+.dice::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:50%;
+  background:linear-gradient(
+    180deg,
+    rgba(255,255,255,0.22) 0%,
+    rgba(255,255,255,0.05) 50%,
+    transparent 100%
+  );
+  pointer-events:none;
+  border-radius:28px 28px 0 0;
+  z-index:1;
+}
+/* Pip dots in the four corners */
+.dice::after{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.35) 4%, transparent 5%),
+    radial-gradient(circle at 82% 18%, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.3) 4%, transparent 5%),
+    radial-gradient(circle at 18% 82%, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.3) 4%, transparent 5%),
+    radial-gradient(circle at 82% 82%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.35) 4%, transparent 5%);
+  pointer-events:none;
+  border-radius:28px;
+  z-index:1;
+}
+.dice span.die-letter{
+  position:relative;z-index:2;
+  font-weight:800;
+  /* Neon multi-layered text shadow */
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.5),
+    0 0 8px rgba(255,255,255,0.9),
+    0 0 16px var(--die-glow, rgba(255,255,255,0.6)),
+    0 0 32px var(--die-glow, rgba(255,255,255,0.4)),
+    0 0 48px var(--die-glow, rgba(255,255,255,0.3));
+}
+.dice:hover:not(.rolling){
+  transform:translateY(-3px);
+  box-shadow:
+    0 1px 1px rgba(255,255,255,0.4) inset,
+    0 -1px 1px rgba(0,0,0,0.15) inset,
+    0 2px 4px rgba(0,0,0,0.2),
+    0 8px 16px rgba(0,0,0,0.3),
+    0 20px 40px rgba(0,0,0,0.4),
+    0 32px 64px -8px rgba(0,0,0,0.45),
+    0 0 50px -5px var(--die-glow, rgba(255,255,255,0.5)),
+    0 0 100px -20px var(--die-glow, rgba(255,255,255,0.5));
+}
+.dice.rolling{
+  box-shadow:
+    0 1px 1px rgba(255,255,255,0.4) inset,
+    0 -1px 1px rgba(0,0,0,0.15) inset,
+    0 4px 8px rgba(0,0,0,0.3),
+    0 16px 32px rgba(0,0,0,0.4),
+    0 0 60px -5px var(--die-glow, rgba(255,255,255,0.6)),
+    0 0 120px -15px var(--die-glow, rgba(255,255,255,0.5));
+}
+.dice-container{perspective:1600px;}
+
+.dice-wrap{
+  position:relative;
+  display:inline-block;
+}
+.dice-wrap::after{
+  content:'';position:absolute;
+  bottom:-14px;left:50%;
+  transform:translateX(-50%);
+  width:130px;height:14px;
+  background:radial-gradient(ellipse, rgba(0,0,0,0.4), transparent 70%);
+  filter:blur(3px);
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 0.3s ease;
+  z-index:-1;
+}
+.dice-wrap.rolling::after{opacity:1;}
+
+.mini-die{
+  width:58px;height:58px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.85rem;font-weight:900;color:white;
+  border-radius:12px;
+  text-shadow:0 2px 6px rgba(0,0,0,0.7);
+  box-shadow:
+    inset 0 5px 10px -2px rgba(255,255,255,0.45),
+    inset 0 -5px 10px -2px rgba(0,0,0,0.55),
+    0 0 0 4px rgba(255,255,255,0.85),
+    0 8px 16px -4px rgba(0,0,0,0.5);
+  position:relative;
+}
+.mini-die.placeholder{
+  background:rgba(255,255,255,0.04) !important;
+  color:rgba(255,255,255,0.25);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,0.1),
+    0 0 0 4px rgba(255,255,255,0.08);
+  font-size:1.5rem;
+}
+
+/* Steady clockwise spin in place — no other motion */
+@keyframes throwAndLand{
+  0%   {transform: rotate(0deg);}
+  100% {transform: rotate(1440deg);}
+}
+.rolling{
+  animation: throwAndLand 5000ms cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+.table-felt{
+  background:
+    radial-gradient(circle at 50% 35%, #0f766e 0%, #042f2e 70%, #022020 100%);
+  box-shadow:
+    inset 0 0 180px rgba(0,0,0,0.9),
+    inset 0 0 60px rgba(20,184,166,0.15),
+    0 0 100px rgba(20,184,166,0.3),
+    0 30px 60px -15px rgba(0,0,0,0.6);
+  border:14px solid #134e4a;
+  border-radius:44px;
+  position:relative;
+}
+.table-felt::before{
+  content:'';position:absolute;inset:14px;
+  border:2px dashed rgba(20,184,166,0.2);
+  border-radius:32px;
+  pointer-events:none;
+}
+
+.control-btn{transition:all 0.2s cubic-bezier(0.4,0,0.2,1);}
+.control-btn:hover{transform:translateY(-3px);box-shadow:0 25px 30px -8px rgba(0,0,0,0.3);}
+.control-btn:active{transform:translateY(-1px);}
+
+.crypto-badge{
+  background:linear-gradient(135deg, rgba(20,184,166,0.15), rgba(168,85,247,0.15));
+  border:1px solid rgba(20,184,166,0.4);
+}
+</style>
+</head>
+<body class="flex items-center justify-center p-6 text-white">
+<div class="max-w-5xl w-full mx-auto">
+
+  <div class="text-center mb-10">
+    <h1 class="header-font text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-cyan-200 to-purple-300 drop-shadow-2xl">CHROMA ROLL</h1>
+    <div class="mt-5 inline-flex items-center gap-x-3 crypto-badge text-white text-base md:text-lg font-bold px-8 py-4 rounded-3xl shadow-2xl backdrop-blur-md">
+      <span class="text-2xl">🔐</span>
+      <span>100% UNRIGGABLE</span>
+      <span class="text-teal-400">•</span>
+      <span>TRULY RANDOM</span>
+      <span class="text-purple-400">•</span>
+      <span>GAME READY</span>
+      <span class="text-2xl">🎲</span>
+    </div>
+    <p class="text-teal-400/90 text-lg mt-4 tracking-[0.3em]">4 DICE · 6 COLORS · POWERED BY Math.random()</p>
+  </div>
+
+  <div class="table-felt p-10 md:p-14 shadow-2xl mb-6">
+    <div id="dice-row" class="dice-container flex justify-center gap-8 md:gap-12 flex-wrap"></div>
+  </div>
+
+  <div id="prev-roll-banner" class="mb-6 bg-slate-900/70 backdrop-blur-xl rounded-3xl px-8 py-6 border border-amber-500/40 shadow-2xl">
+    <p class="text-amber-300 text-sm font-bold tracking-[0.3em] text-center mb-4">⬅ PREVIOUS ROLL</p>
+    <div id="prev-roll-dice" class="flex justify-center gap-5 flex-wrap"></div>
+  </div>
+
+  <!-- Possible colors legend -->
+  <div class="mb-10 bg-slate-900/70 backdrop-blur-xl rounded-3xl px-8 py-6 border border-purple-500/40 shadow-2xl">
+    <p class="text-purple-300 text-sm font-bold tracking-[0.3em] text-center mb-4">🎯 POSSIBLE COLORS · PICK YOUR FAVORITE</p>
+    <div id="possible-colors" class="flex justify-center gap-5 flex-wrap"></div>
+  </div>
+
+  <div class="flex flex-wrap justify-center items-center gap-5">
+    <button onclick="rollAllDice()" class="control-btn group px-14 py-7 bg-gradient-to-r from-amber-100 via-white to-amber-100 hover:from-white hover:to-white text-slate-900 font-bold text-4xl rounded-3xl shadow-2xl flex items-center gap-5">
+      <span class="text-5xl group-active:rotate-12 transition-transform">🎲</span> ROLL ALL <span class="text-5xl group-active:-rotate-12 transition-transform">🎲</span>
+    </button>
+    <button onclick="toggleMute()" id="mute-btn" class="control-btn px-7 py-7 bg-slate-800 hover:bg-slate-700 text-3xl rounded-3xl shadow-xl">🔊</button>
+    <div class="flex items-center gap-3 bg-slate-900/70 px-6 py-4 rounded-3xl backdrop-blur-sm">
+      <span class="text-2xl">🔈</span>
+      <input type="range" id="volume-slider" min="0" max="100" value="70" class="w-36 accent-teal-400 cursor-pointer">
+      <span id="volume-value" class="font-mono text-base w-10">70%</span>
+    </div>
+    <button onclick="resetDice()" class="control-btn px-9 py-7 bg-slate-800 hover:bg-slate-700 text-white font-semibold text-2xl rounded-3xl shadow-xl">RESET</button>
+  </div>
+
+  <div class="text-center mt-10 text-teal-400/40 text-xs font-mono tracking-widest">throw · bounce · land · Math.random() · uniform distribution · TT Credits: @SaintAlive</div>
+</div>
+
+<script>
+let audioCtx;
+let isMuted = false;
+let masterVol = 0.70;
+let currentResults = [];   // what is currently showing on the 4 dice
+let previousResults = [];  // snapshot shown in the "Previous Roll" banner
+let isRolling = false;
+
+const COLORS = [
+  { letter: "R", name: "Red",    hex: "#ef4444" },
+  { letter: "O", name: "Orange", hex: "#f59e0b" },
+  { letter: "Y", name: "Yellow", hex: "#fbbf24" },
+  { letter: "G", name: "Green",  hex: "#10b981" },
+  { letter: "B", name: "Blue",   hex: "#3b82f6" },
+  { letter: "P", name: "Purple", hex: "#a855f7" }
+];
+
+function secureRandomIndex(max) {
+  const range = 256 - (256 % max);
+  const buf = new Uint8Array(1);
+  let val;
+  do {
+    crypto.getRandomValues(buf);
+    val = buf[0];
+  } while (val >= range);
+  return val % max;
+}
+
+function pickColor() {
+  return COLORS[secureRandomIndex(COLORS.length)];
+}
+
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function masterGain() {
+  const g = audioCtx.createGain();
+  g.gain.value = masterVol;
+  g.connect(audioCtx.destination);
+  return g;
+}
+
+function playRollingSound() {
+  if (isMuted || !audioCtx) return;
+  const mg = masterGain();
+  let t = audioCtx.currentTime;
+
+  for (let i = 0; i < 80; i++) {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    const f = audioCtx.createBiquadFilter();
+    const freq = 200 + Math.random() * 900;
+    o.frequency.setValueAtTime(freq, t);
+    o.frequency.exponentialRampToValueAtTime(freq * 0.7, t + 0.06);
+    o.type = Math.random() > 0.5 ? 'sawtooth' : 'square';
+    f.type = 'bandpass';
+    f.frequency.value = 800 + Math.random() * 1200;
+    f.Q.value = 3;
+    const vol = 0.18 * (1 - i / 80) * 0.6 + 0.04;
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+    o.connect(f); f.connect(g); g.connect(mg);
+    o.start(t); o.stop(t + 0.09);
+    t += 0.038 + Math.random() * 0.028;
+  }
+
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => {
+      if (isMuted || !audioCtx) return;
+      const mg2 = masterGain();
+      const now = audioCtx.currentTime;
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(160 + Math.random() * 80, now);
+      o.frequency.exponentialRampToValueAtTime(60, now + 0.15);
+      g.gain.setValueAtTime(0.35, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      o.connect(g); g.connect(mg2);
+      o.start(now); o.stop(now + 0.2);
+    }, 200 + i * 480 + Math.random() * 200);
+  }
+}
+
+function playSettleSound() {
+  if (isMuted || !audioCtx) return;
+  const mg = masterGain();
+  const now = audioCtx.currentTime;
+
+  const thud = audioCtx.createOscillator();
+  const thudG = audioCtx.createGain();
+  thud.type = 'sine';
+  thud.frequency.setValueAtTime(190, now);
+  thud.frequency.exponentialRampToValueAtTime(55, now + 0.28);
+  thudG.gain.setValueAtTime(1.1, now);
+  thudG.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+  thud.connect(thudG); thudG.connect(mg);
+  thud.start(now); thud.stop(now + 0.35);
+
+  const crack = audioCtx.createOscillator();
+  const crackG = audioCtx.createGain();
+  crack.type = 'sawtooth';
+  crack.frequency.setValueAtTime(2200, now + 0.01);
+  crack.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+  crackG.gain.setValueAtTime(0.7, now + 0.01);
+  crackG.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+  crack.connect(crackG); crackG.connect(mg);
+  crack.start(now + 0.01); crack.stop(now + 0.12);
+
+  const buf = createNoise(0.18);
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  const noiseG = audioCtx.createGain();
+  const lp = audioCtx.createBiquadFilter();
+  lp.type = 'bandpass'; lp.frequency.value = 1400; lp.Q.value = 1.5;
+  noiseG.gain.setValueAtTime(0.6, now + 0.02);
+  noiseG.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+  src.connect(lp); lp.connect(noiseG); noiseG.connect(mg);
+  src.start(now + 0.02);
+
+  const ping = audioCtx.createOscillator();
+  const pingG = audioCtx.createGain();
+  ping.type = 'sine';
+  ping.frequency.setValueAtTime(880 + Math.random() * 440, now + 0.04);
+  pingG.gain.setValueAtTime(0.25, now + 0.04);
+  pingG.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+  ping.connect(pingG); pingG.connect(mg);
+  ping.start(now + 0.04); ping.stop(now + 0.6);
+
+  const sub = audioCtx.createOscillator();
+  const subG = audioCtx.createGain();
+  sub.type = 'sine';
+  sub.frequency.setValueAtTime(75, now);
+  sub.frequency.exponentialRampToValueAtTime(38, now + 0.2);
+  subG.gain.setValueAtTime(0.9, now);
+  subG.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+  sub.connect(subG); subG.connect(mg);
+  sub.start(now); sub.stop(now + 0.28);
+}
+
+function createNoise(dur) {
+  const sz = Math.floor(audioCtx.sampleRate * dur);
+  const buf = audioCtx.createBuffer(1, sz, audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < sz; i++) d[i] = Math.random() * 2 - 1;
+  return buf;
+}
+
+function toggleMute() {
+  isMuted = !isMuted;
+  document.getElementById("mute-btn").textContent = isMuted ? "🔇" : "🔊";
+}
+
+function setDieDisplay(dieEl, color) {
+  dieEl.style.backgroundColor = color.hex;
+  dieEl.style.setProperty('--die-glow', color.hex);
+  dieEl.innerHTML = `<span class="die-letter">${color.letter}</span>`;
+}
+
+function renderPossibleColors() {
+  const container = document.getElementById("possible-colors");
+  container.innerHTML = "";
+  COLORS.forEach(c => {
+    const wrap = document.createElement("div");
+    wrap.className = "flex flex-col items-center gap-2";
+    wrap.innerHTML = `
+      <div class="mini-die" style="background-color:${c.hex}">${c.letter}</div>
+      <span style="font-size:12px;color:#fff;font-weight:600">${c.name}</span>
+    `;
+    container.appendChild(wrap);
+  });
+}
+
+function createDice() {
+  const row = document.getElementById("dice-row");
+  row.innerHTML = "";
+  currentResults = [];
+  for (let i = 0; i < 4; i++) {
+    const wrap = document.createElement("div");
+    wrap.className = "dice-wrap";
+    const die = document.createElement("div");
+    die.className = "dice";
+    die.dataset.index = i;
+    die.addEventListener("click", () => { if (!isRolling) rollSingleDie(i); });
+    const c = pickColor();
+    setDieDisplay(die, c);
+    currentResults[i] = c;
+    wrap.appendChild(die);
+    row.appendChild(wrap);
+  }
+  renderPrevBanner();
+}
+
+async function animateRoll(dieEl) {
+  return new Promise(resolve => {
+    let flashes = 0;
+    const iv = setInterval(() => {
+      const c = pickColor();
+      setDieDisplay(dieEl, c);
+      flashes++;
+      if (flashes >= 72) {
+        clearInterval(iv);
+        const final = pickColor();
+        setDieDisplay(dieEl, final);
+        resolve(final);
+      }
+    }, 5000 / 72);
+  });
+}
+
+function renderPrevBanner() {
+  const container = document.getElementById("prev-roll-dice");
+  container.innerHTML = "";
+  for (let i = 0; i < 4; i++) {
+    const r = previousResults[i];
+    const wrap = document.createElement("div");
+    wrap.className = "flex flex-col items-center gap-2";
+    if (r) {
+      wrap.innerHTML = `
+        <div class="mini-die" style="background-color:${r.hex}">${r.letter}</div>
+        <span style="font-size:11px;color:#6ee7b7;font-weight:700;letter-spacing:0.15em">DIE ${i + 1}</span>
+        <span style="font-size:12px;color:#fff;font-weight:600">${r.name}</span>
+      `;
+    } else {
+      wrap.innerHTML = `
+        <div class="mini-die placeholder">—</div>
+        <span style="font-size:11px;color:rgba(110,231,183,0.4);font-weight:700;letter-spacing:0.15em">DIE ${i + 1}</span>
+        <span style="font-size:12px;color:rgba(255,255,255,0.4);font-weight:600">awaiting roll</span>
+      `;
+    }
+    container.appendChild(wrap);
+  }
+}
+
+async function rollAllDice() {
+  if (isRolling) return;
+  initAudio();
+  isRolling = true;
+
+  // Snapshot what's on the dice RIGHT NOW. This becomes the "previous roll"
+  // that gets shown AFTER the new roll completes.
+  const snapshotBeforeRoll = currentResults.slice();
+
+  playRollingSound();
+
+  const dice = Array.from(document.querySelectorAll(".dice"));
+  const newResults = new Array(4);
+  let settled = 0;
+
+  dice.forEach((die, i) => {
+    setTimeout(() => {
+      die.classList.add("rolling");
+      die.parentElement.classList.add("rolling");
+      animateRoll(die).then(result => {
+        die.classList.remove("rolling");
+        die.parentElement.classList.remove("rolling");
+        playSettleSound();
+        newResults[i] = result;
+        settled++;
+        if (settled === 4) {
+          previousResults = snapshotBeforeRoll;
+          currentResults = newResults;
+          renderPrevBanner();
+          isRolling = false;
+        }
+      });
+    }, i * 200);
+  });
+}
+
+async function rollSingleDie(index) {
+  if (isRolling) return;
+  initAudio();
+  isRolling = true;
+
+  // Snapshot ALL dice state before rerolling just this one
+  const snapshotBeforeRoll = currentResults.slice();
+
+  playRollingSound();
+  const dice = document.querySelectorAll(".dice");
+  const die = dice[index];
+  die.classList.add("rolling");
+  die.parentElement.classList.add("rolling");
+  const result = await animateRoll(die);
+  die.classList.remove("rolling");
+  die.parentElement.classList.remove("rolling");
+  playSettleSound();
+
+  previousResults = snapshotBeforeRoll;
+  currentResults[index] = result;
+  renderPrevBanner();
+  isRolling = false;
+}
+
+function resetDice() {
+  previousResults = [];
+  isRolling = false;
+  createDice();
+}
+
+document.getElementById("volume-slider").addEventListener("input", function () {
+  masterVol = parseInt(this.value) / 100;
+  document.getElementById("volume-value").textContent = this.value + "%";
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === " ") { e.preventDefault(); rollAllDice(); }
+});
+
+createDice();
+renderPossibleColors();
+</script>
+</body>
+</html>
