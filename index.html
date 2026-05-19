@@ -25,6 +25,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;600;800&family=Playfair+Display:wght@700;900&family=Cormorant+Garamond:wght@600;700&family=Audiowide&family=Archivo+Black&display=swap');
 
+
 :root{
   --bg-gradient:
     radial-gradient(circle at 20% 10%, #2d1b4e 0%, transparent 50%),
@@ -464,6 +465,24 @@ body{
 
 .footer-text{color: var(--footer-color);}
 input[type="range"]{accent-color: var(--slider-accent);}
+
+
+.prev-collapsible{
+  max-height: 240px;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease, padding 0.3s ease;
+  opacity: 1;
+}
+.prev-collapsible.collapsed{
+  max-height: 0;
+  opacity: 0;
+}
+#prev-roll-chevron.collapsed{
+  transform: rotate(-90deg);
+}
+#prev-roll-toggle:hover #prev-roll-chevron{
+  opacity: 0.7;
+}
 </style>
 </head>
 <body class="flex items-center justify-center p-6">
@@ -507,8 +526,13 @@ input[type="range"]{accent-color: var(--slider-accent);}
   </div>
 
   <div id="prev-roll-banner" class="mb-6 panel-prev backdrop-blur-xl rounded-3xl px-8 py-6 border shadow-2xl">
-    <p class="label-prev text-sm font-bold tracking-[0.3em] text-center mb-4">⬅ PREVIOUS ROLL</p>
-    <div id="prev-roll-dice" class="flex justify-center gap-5 flex-wrap"></div>
+    <button id="prev-roll-toggle" type="button" class="w-full flex items-center justify-between gap-3 cursor-pointer select-none bg-transparent border-0 p-0" style="color:inherit">
+      <span class="label-prev text-sm font-bold tracking-[0.3em]">⬅ PREVIOUS ROLL</span>
+      <span id="prev-roll-chevron" class="label-prev text-base font-bold transition-transform duration-300" style="display:inline-block">▾</span>
+    </button>
+    <div id="prev-roll-body" class="prev-collapsible">
+      <div id="prev-roll-dice" class="flex justify-center gap-5 flex-wrap pt-5"></div>
+    </div>
   </div>
 
   <div class="mb-10 panel-colors backdrop-blur-xl rounded-3xl px-8 py-6 border shadow-2xl">
@@ -813,6 +837,20 @@ document.getElementById(_0x_s_(0x28)).addEventListener(_0x_s_(0x29),function(){
 document.addEventListener(_0x_s_(0x2b),_0x4b9d=>{
   if(_0x4b9d.key===' '){_0x4b9d.preventDefault();_0xc7d6();}
 });
+(function(){
+  var _0xtg=document.getElementById('prev-roll-toggle');
+  var _0xbd=document.getElementById('prev-roll-body');
+  var _0xcv=document.getElementById('prev-roll-chevron');
+  if(_0xtg&&_0xbd&&_0xcv){
+    _0xtg.addEventListener(_0x_s_(0x27),function(){
+      var _0xcl=_0xbd.classList.toggle('collapsed');
+      _0xcv.classList.toggle('collapsed',_0xcl);
+      _0xtg.setAttribute('aria-expanded',(!_0xcl).toString());
+    });
+    _0xtg.setAttribute('aria-expanded','true');
+    _0xtg.setAttribute('aria-controls','prev-roll-body');
+  }
+})();
 _0x8d5f();
 _0x6c3b();
 window._0xc7d6=_0xc7d6;
