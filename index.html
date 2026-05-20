@@ -384,7 +384,6 @@ input[type="range"]{accent-color: var(--slider-accent);}
 .toggle-label .ic{ font-size:18px; }
 .toggle-desc{ font-size:11px; color:var(--muted-weak, rgba(255,255,255,0.45)); font-weight:400; margin-top:2px; }
 
-
 .switch{ position:relative; width:50px; height:28px; flex-shrink:0; cursor:pointer; }
 .switch input{ opacity:0; width:0; height:0; }
 .switch .track{
@@ -398,7 +397,6 @@ input[type="range"]{accent-color: var(--slider-accent);}
 }
 .switch input:checked + .track{ background: var(--badge-accent-1); }
 .switch input:checked + .track .knob{ transform: translateX(22px); }
-
 
 .history-row{ display:flex; align-items:center; gap:14px; padding:8px 12px; border-radius:12px; background:rgba(255,255,255,0.04); margin-bottom:6px; }
 .hist-serial{font-family:monospace;font-size:12px;color:var(--label-prev);font-weight:700;min-width:38px;}
@@ -414,7 +412,6 @@ input[type="range"]{accent-color: var(--slider-accent);}
 <body class="flex items-center justify-center p-6">
 <div class="max-w-5xl w-full mx-auto">
 
-  
   <div class="theme-bar" id="theme-bar">
     <div class="theme-chip active" data-theme-key="classic"><span class="swatch" style="background:linear-gradient(135deg,#14b8a6,#a855f7)"></span> CLASSIC</div>
     <div class="theme-chip" data-theme-key="forest"><span class="swatch" style="background:linear-gradient(135deg,#84cc16,#14532d)"></span> FOREST</div>
@@ -437,33 +434,31 @@ input[type="range"]{accent-color: var(--slider-accent);}
     <div id="dice-row" class="dice-container flex justify-center gap-8 md:gap-12 flex-wrap"></div>
   </div>
 
-
   <div id="prev-roll-section" class="mb-6 panel-prev backdrop-blur-xl rounded-3xl px-8 py-6 border shadow-2xl">
     <p class="label-prev text-sm font-bold tracking-[0.3em] text-center">⬅ PREVIOUS ROLL</p>
     <div id="prev-roll-dice" class="flex justify-center gap-5 flex-wrap pt-5"></div>
   </div>
-
 
   <div class="mb-6 panel-colors backdrop-blur-xl rounded-3xl px-8 py-6 border shadow-2xl">
     <p class="label-colors text-sm font-bold tracking-[0.3em] text-center mb-4">🎯 POSSIBLE COLORS</p>
     <div id="possible-colors" class="flex justify-center gap-5 flex-wrap"></div>
   </div>
 
-
-  <div class="flex flex-wrap justify-center items-center gap-5 mb-6">
-    <button onclick="rollAllDice()" class="control-btn btn-primary group px-14 py-7 font-bold text-4xl rounded-3xl shadow-2xl flex items-center gap-5">
-      <span class="text-5xl group-active:rotate-12 transition-transform">🎲</span> ROLL ALL <span class="text-5xl group-active:-rotate-12 transition-transform">🎲</span>
-    </button>
-    <button onclick="toggleSettings()" id="gear-btn" class="control-btn gear-btn" title="Settings" aria-label="Settings">⚙️</button>
-    <button onclick="toggleMute()" id="mute-btn" class="control-btn btn-secondary px-7 py-7 text-3xl rounded-3xl shadow-xl">🔊</button>
-    <div class="flex items-center gap-3 px-6 py-4 rounded-3xl backdrop-blur-sm" style="background:var(--panel-bg)">
-      <span class="text-2xl">🔈</span>
-      <input type="range" id="volume-slider" min="0" max="100" value="25" class="w-36 cursor-pointer">
-      <span id="volume-value" class="font-mono text-base w-10" style="color:var(--body-color)">25%</span>
+  <div class="mb-6 panel-colors backdrop-blur-xl rounded-3xl px-8 py-7 border shadow-2xl">
+    <div class="flex flex-wrap justify-center items-center gap-5">
+      <button onclick="rollAllDice()" class="control-btn btn-primary group px-14 py-7 font-bold text-4xl rounded-3xl shadow-2xl flex items-center gap-5">
+        <span class="text-5xl group-active:rotate-12 transition-transform">🎲</span> ROLL ALL <span class="text-5xl group-active:-rotate-12 transition-transform">🎲</span>
+      </button>
+      <button onclick="toggleSettings()" id="gear-btn" class="control-btn gear-btn" title="Settings" aria-label="Settings">⚙️</button>
+      <button onclick="toggleMute()" id="mute-btn" class="control-btn btn-secondary px-7 py-7 text-3xl rounded-3xl shadow-xl">🔊</button>
+      <div class="flex items-center gap-3 px-6 py-4 rounded-3xl backdrop-blur-sm" style="background:var(--panel-bg)">
+        <span class="text-2xl">🔈</span>
+        <input type="range" id="volume-slider" min="0" max="100" value="25" class="w-36 cursor-pointer">
+        <span id="volume-value" class="font-mono text-base w-10" style="color:var(--body-color)">25%</span>
+      </div>
+      <button onclick="resetDice()" class="control-btn btn-secondary px-9 py-7 font-semibold text-2xl rounded-3xl shadow-xl">RESET</button>
     </div>
-    <button onclick="resetDice()" class="control-btn btn-secondary px-9 py-7 font-semibold text-2xl rounded-3xl shadow-xl">RESET</button>
   </div>
-
 
   <div id="history-section" class="mb-10 panel-prev backdrop-blur-xl rounded-3xl px-8 py-6 border shadow-2xl">
     <button type="button" class="section-toggle" data-section="history">
@@ -476,7 +471,6 @@ input[type="range"]{accent-color: var(--slider-accent);}
       </div>
     </div>
   </div>
-
 
   <div id="settings-backdrop" class="settings-backdrop" onclick="toggleSettings()"></div>
   <div id="settings-panel" class="settings-panel">
@@ -528,7 +522,6 @@ let previousDice=[];
 let isRolling=false;
 let currentTheme='classic';
 
-
 let rollHistory=[];
 let rollSerial=0;
 let sectionVisibility={prev:true,history:true};
@@ -543,7 +536,6 @@ const COLORS=[
   {letter:"P",name:"Purple",hex:"#a855f7"}
 ];
 
-
 function randIndex(n){
   const limit=256-(256%n);
   const buf=new Uint8Array(1);
@@ -554,7 +546,6 @@ function randIndex(n){
 function randColor(){
   return COLORS[randIndex(COLORS.length)];
 }
-
 
 function initAudio(){
   if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
@@ -623,7 +614,6 @@ function toggleMute(){
   saveSettings();
 }
 
-
 function paintDie(el,c){
   el.style.backgroundColor=c.hex;
   el.style.setProperty('--die-glow',c.hex);
@@ -679,7 +669,6 @@ function renderPrevious(){
   }
 }
 
-
 function renderHistory(){
   const host=document.getElementById('history-log');
   if(!host)return;
@@ -727,7 +716,6 @@ async function rollAllDice(){
 }
 function resetDice(){previousDice=[];isRolling=false;buildDice();}
 
-
 function setTheme(key){
   const valid=['classic','forest','vapor','royal','mono'];
   if(!valid.includes(key))return;
@@ -737,7 +725,6 @@ function setTheme(key){
   document.querySelectorAll('.theme-chip').forEach(chip=>{chip.classList.toggle('active',chip.dataset.themeKey===key);});
   saveSettings();
 }
-
 
 function applyVisibility(){
   document.getElementById('prev-roll-section').style.display=sectionVisibility.prev?'':'none';
@@ -761,23 +748,30 @@ function toggleSettings(){
   gear.classList.toggle('active',open);
 }
 
-
+const STORE_KEY='chromadice:settings';
+async function _persistSet(val){
+  try{ if(window.storage){ await window.storage.set(STORE_KEY,val,false); return; } }catch(e){}
+  try{ localStorage.setItem(STORE_KEY,val); }catch(e){}
+}
+async function _persistGet(){
+  try{ if(window.storage){ const r=await window.storage.get(STORE_KEY,false); if(r&&r.value!=null) return r.value; } }catch(e){}
+  try{ return localStorage.getItem(STORE_KEY); }catch(e){}
+  return null;
+}
 async function saveSettings(){
   try{
-    if(!window.storage)return;
-    await window.storage.set('chromadice:settings',JSON.stringify({
+    await _persistSet(JSON.stringify({
       theme:currentTheme,volume,muted,rollSerial,
       history:rollHistory.slice(-50),
       visibility:sectionVisibility,collapsed:sectionCollapsed
-    }),false);
+    }));
   }catch(e){}
 }
 async function loadSettings(){
   try{
-    if(!window.storage)return;
-    const res=await window.storage.get('chromadice:settings',false);
-    if(!res||!res.value)return;
-    const s=JSON.parse(res.value);
+    const raw=await _persistGet();
+    if(!raw)return;
+    const s=JSON.parse(raw);
     if(s.theme)setTheme(s.theme);
     if(typeof s.volume==='number'){volume=s.volume;const vs=document.getElementById('volume-slider');const vv=document.getElementById('volume-value');if(vs)vs.value=Math.round(s.volume*100);if(vv)vv.textContent=Math.round(s.volume*100)+'%';}
     if(typeof s.muted==='boolean'){muted=s.muted;const mb=document.getElementById('mute-btn');if(mb)mb.textContent=muted?'🔇':'🔊';}
@@ -794,14 +788,12 @@ function clearStats(){
   renderHistory();saveSettings();
 }
 
-
 document.querySelectorAll('.theme-chip').forEach(chip=>{chip.addEventListener('click',()=>setTheme(chip.dataset.themeKey));});
 document.getElementById('volume-slider').addEventListener('input',function(){volume=parseInt(this.value)/100;document.getElementById('volume-value').textContent=this.value+'%';saveSettings();});
 document.addEventListener('keydown',e=>{
   if(e.key===' '){e.preventDefault();rollAllDice();}
   if(e.key==='Escape'){const p=document.getElementById('settings-panel');if(p&&p.classList.contains('open'))toggleSettings();}
 });
-
 
 document.querySelectorAll('.section-toggle').forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -814,7 +806,6 @@ document.querySelectorAll('.section-toggle').forEach(btn=>{
 
 document.getElementById('vis-prev').addEventListener('change',function(){sectionVisibility.prev=this.checked;applyVisibility();saveSettings();});
 document.getElementById('vis-history').addEventListener('change',function(){sectionVisibility.history=this.checked;applyVisibility();saveSettings();});
-
 
 buildDice();
 renderPossible();
